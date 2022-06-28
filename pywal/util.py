@@ -25,7 +25,7 @@ class Color:
     @property
     def rgb(self):
         """Convert a hex color to rgb."""
-        return "%s,%s,%s" % (*hex_to_rgb(self.hex_color),)
+        return "%s,%s,%s" % (*hex_to_rgb(self.hex_color), )
 
     @property
     def xrgba(self):
@@ -37,6 +37,10 @@ class Color:
         """Convert a hex color to rgba."""
         return "rgba(%s,%s,%s,%s)" % (*hex_to_rgb(self.hex_color),
                                       self.alpha_dec)
+
+    @property
+    def hsl(self):
+        return "%s,%s,%s" % hex_to_hsl(self.hex_color)
 
     @property
     def alpha(self):
@@ -74,19 +78,24 @@ class Color:
         return self.hex_color[1:]
 
     @property
+    def alpha_hex(self):
+        alpha = hex(int(255 * int(self.alpha_num) / 100)).strip('0x')
+        return "#%s%s" % (alpha, self.hex_color[1:])
+
+    @property
     def red(self):
         """Red value as float between 0 and 1."""
-        return "%.3f" % (hex_to_rgb(self.hex_color)[0]/255.)
+        return "%.3f" % (hex_to_rgb(self.hex_color)[0] / 255.)
 
     @property
     def green(self):
         """Green value as float between 0 and 1."""
-        return "%.3f" % (hex_to_rgb(self.hex_color)[1]/255.)
+        return "%.3f" % (hex_to_rgb(self.hex_color)[1] / 255.)
 
     @property
     def blue(self):
         """Blue value as float between 0 and 1."""
-        return "%.3f" % (hex_to_rgb(self.hex_color)[2]/255.)
+        return "%.3f" % (hex_to_rgb(self.hex_color)[2] / 255.)
 
     def lighten(self, percent):
         """Lighten color by percent."""
@@ -167,12 +176,12 @@ def hex_to_rgb(color):
 def hex_to_xrgba(color):
     """Convert a hex color to xrdb rgba."""
     col = color.lower().strip("#")
-    return "%s%s/%s%s/%s%s/ff" % (*col,)
+    return "%s%s/%s%s/%s%s/ff" % (*col, )
 
 
 def rgb_to_hex(color):
     """Convert an rgb color to hex."""
-    return "#%02x%02x%02x" % (*color,)
+    return "#%02x%02x%02x" % (*color, )
 
 
 def darken_color(color, amount):
@@ -211,6 +220,14 @@ def saturate_color(color, amount):
     return rgb_to_hex((int(r), int(g), int(b)))
 
 
+def hex_to_hsl(color):
+    """Convert hex to hsl"""
+    r, g, b = hex_to_rgb(color)
+    h, l, s = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
+
+    return int(h * 360), int(s * 100), int(l * 100)
+
+
 def rgb_to_yiq(color):
     """Sort a list of colors."""
     return colorsys.rgb_to_yiq(*hex_to_rgb(color))
@@ -219,9 +236,7 @@ def rgb_to_yiq(color):
 def disown(cmd):
     """Call a system command in the background,
        disown it and hide it's output."""
-    subprocess.Popen(cmd,
-                     stdout=subprocess.DEVNULL,
-                     stderr=subprocess.DEVNULL)
+    subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def get_pid(name):

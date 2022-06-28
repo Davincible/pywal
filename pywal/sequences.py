@@ -14,8 +14,8 @@ def set_special(index, color, iterm_name="h", alpha=100):
     if OS == "Darwin" and iterm_name:
         return "\033]P%s%s\033\\" % (iterm_name, color.strip("#"))
 
-    if index in [11, 708] and alpha != "100":
-        return "\033]%s;[%s]%s\033\\" % (index, alpha, color)
+    # if index in [11, 708] and alpha != "100":
+    #     return "\033]%s;[%s]%s\033\\" % (index, alpha, color)
 
     return "\033]%s;%s\033\\" % (index, color)
 
@@ -32,7 +32,7 @@ def set_iterm_tab_color(color):
     """Set iTerm2 tab/window color"""
     return ("\033]6;1;bg;red;brightness;%s\a"
             "\033]6;1;bg;green;brightness;%s\a"
-            "\033]6;1;bg;blue;brightness;%s\a") % (*util.hex_to_rgb(color),)
+            "\033]6;1;bg;blue;brightness;%s\a") % (*util.hex_to_rgb(color), )
 
 
 def create_sequences(colors, vte_fix=False):
@@ -40,8 +40,10 @@ def create_sequences(colors, vte_fix=False):
     alpha = colors["alpha"]
 
     # Colors 0-15.
-    sequences = [set_color(index, colors["colors"]["color%s" % index])
-                 for index in range(16)]
+    sequences = [
+        set_color(index, colors["colors"]["color%s" % index])
+        for index in range(16)
+    ]
 
     # Special colors.
     # Source: https://goo.gl/KcoQgP
@@ -49,7 +51,7 @@ def create_sequences(colors, vte_fix=False):
     # 13 = mouse foreground, 708 = background border color.
     sequences.extend([
         set_special(10, colors["special"]["foreground"], "g"),
-        set_special(11, colors["special"]["background"], "h", alpha),
+        set_special(11, colors["special"]["background"], "h"),
         set_special(12, colors["special"]["cursor"], "l"),
         set_special(13, colors["special"]["foreground"], "j"),
         set_special(17, colors["special"]["foreground"], "k"),
@@ -61,8 +63,7 @@ def create_sequences(colors, vte_fix=False):
 
     if not vte_fix:
         sequences.extend(
-            set_special(708, colors["special"]["background"], "", alpha)
-        )
+            set_special(708, colors["special"]["background"], "", alpha))
 
     if OS == "Darwin":
         sequences += set_iterm_tab_color(colors["special"]["background"])
